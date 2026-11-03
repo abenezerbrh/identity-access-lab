@@ -1,0 +1,13 @@
+2026-11-03 01:46:27 [LAB-101] SKIPPED Sam Ortiz: unknown department 'Marketing'
+2026-11-03 01:46:28 [LAB-101] CREATED mchen in OU=Finance,OU=Staff,DC=lab,DC=local, added to GG_Finance
+2026-11-03 01:46:28 [LAB-101] CREATED ohaddad in OU=Finance,OU=Staff,DC=lab,DC=local, added to GG_Finance
+2026-11-03 01:46:28 [LAB-101] CREATED lnovak in OU=Engineering,OU=Staff,DC=lab,DC=local, added to GG_Engineering
+2026-11-03 01:46:28 [LAB-101] CREATED treyes in OU=Engineering,OU=Staff,DC=lab,DC=local, added to GG_Engineering
+2026-11-03 01:46:28 [LAB-101] CREATED pshah in OU=Audit,OU=Staff,DC=lab,DC=local, added to GG_Audit
+2026-11-03 01:46:28 [LAB-101] SKIPPED Sam Ortiz: unknown department 'Marketing'
+2026-11-03 01:48:53 [LAB-101] SKIPPED Maya Chen: already exists as mchen
+2026-11-03 01:48:53 [LAB-101] SKIPPED Omar Haddad: already exists as ohaddad
+2026-11-03 01:48:53 [LAB-101] SKIPPED Lena Novak: already exists as lnovak
+2026-11-03 01:48:53 [LAB-101] SKIPPED Tom Reyes: already exists as treyes
+2026-11-03 01:48:53 [LAB-101] SKIPPED Priya Shah: already exists as pshah
+2026-11-03 01:48:53 [LAB-101] SKIPPED Sam Ortiz: unknown department 'Marketing'
