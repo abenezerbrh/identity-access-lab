@@ -9,6 +9,7 @@ Everything runs on an isolated VirtualBox network, and every change is scripted 
 - Building a domain controller (AD DS + DNS) and designing an OU structure
 - Role-based access control using the AGDLP model, with NTFS permissions granted only to resource groups
 - Delegating password resets and account unlocks to a helpdesk role, scoped to standard user accounts only
+- Enforcing a password and lockout policy and targeting GPOs at the right OUs
 - Automating onboarding and offboarding from a CSV, with dry runs, duplicate detection, and ticket-referenced audit logs
 - Diagnosing and fixing real problems that came up during the build (see [Troubleshooting log](#troubleshooting-log))
 
@@ -97,6 +98,35 @@ Disabled 2026-11-03 | LAB-205 | was in: GG_Engineering
 
 That gives an audit trail and makes it easy to restore access if the offboarding was a mistake or the person is rehired.
 
+## Group Policy
+
+| GPO | Linked to | What it does |
+| --- | --- | --- |
+| Default Domain Policy (edited) | lab.local | Password and lockout policy for every domain account |
+| WS - Logon Banner | Workstations OU | Shows an "Authorized use only" notice before sign-in (computer setting) |
+| Finance - Drive Map | Staff > Finance OU | Maps `\\DC01\Finance` as drive F: for Finance users (user setting) |
+
+**Password and lockout policy**
+
+| Setting | Value |
+| --- | --- |
+| Minimum length | 12 characters |
+| Complexity | Required |
+| Maximum password age | 90 days |
+| Password history | 24 passwords remembered |
+| Lockout threshold | 5 failed attempts |
+| Lockout duration and observation window | 15 minutes |
+
+```powershell
+Set-ADDefaultDomainPasswordPolicy -Identity lab.local `
+  -MinPasswordLength 12 -ComplexityEnabled $true -MaxPasswordAge 90.00:00:00 `
+  -LockoutThreshold 5 -LockoutDuration 00:15:00 -LockoutObservationWindow 00:15:00
+```
+
+Each GPO is linked where its settings belong: the banner is a computer setting, so it targets the Workstations OU, and the drive map is a user setting, so it targets the OU the Finance users live in. GPOs follow OU location, not group membership, which is why the onboarding script places each user in their department's OU.
+
+The banner and drive map are configured and linked, but they only take effect on a domain-joined client, which is the next step.
+
 ## Results
 
 **Domain controller running AD DS and DNS**
@@ -114,6 +144,22 @@ That gives an audit trail and makes it easy to restore access if the offboarding
 **Offboarding a user that does not exist fails cleanly**
 
 ![Offboarding error handling](screenshots/07.png)
+
+**Domain password and lockout policy applied**
+
+![Password and lockout policy](screenshots/10.png)
+
+**GPOs linked to their OUs in Group Policy Management**
+
+![Group Policy Management tree showing the GPO links](screenshots/14.png)
+
+**Finance drive map: F: mapped to the Finance share**
+
+![Drive map preference in the Finance GPO](screenshots/13.png)
+
+**Verifying both GPOs exist and are linked to the right OUs**
+
+![Get-GPO and Get-GPInheritance output](screenshots/15.png)
 
 Sample logs from these runs are in [`logs/`](logs/).
 
@@ -136,8 +182,8 @@ Biggest takeaway: recreating a group with the same name does not restore its acc
 - [x] Domain controller, DNS, OU structure
 - [x] AGDLP groups, Finance share, helpdesk delegation
 - [x] Onboarding and offboarding scripts
-- [ ] Group Policy: password and lockout policy, logon banner, Finance drive map
-- [ ] Domain-joined Windows 11 client
+- [x] Group Policy: password and lockout policy, logon banner, Finance drive map
+- [ ] Domain-joined Windows 11 client to confirm the banner and drive map apply (`gpresult /r`)
 - [ ] Break tests: account lockout, access denied, helpdesk permission limits, restoring an offboarded user
 - [ ] Runbooks and KB articles
 - [ ] Small fix: tag `-WhatIf` runs in the logs so dry-run entries are not mistaken for real changes
@@ -160,7 +206,11 @@ identity-access-lab/
     ├── 01.png
     ├── 02.png
     ├── 06.png
-    └── 07.png
+    ├── 07.png
+    ├── 10.png
+    ├── 13.png
+    ├── 14.png
+    └── 15.png
 ```
 
 All names, users, and data in this lab are fictional.
